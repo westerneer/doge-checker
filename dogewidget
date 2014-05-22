@@ -1,0 +1,39 @@
+#!/bin/sh
+
+## Read parameters
+usage() { echo "Usage: $0 [-w <DHwQ3Y6kCsf1bKiR3fK3vfMIR4gDUa2xp>] [-c <HUF>]" 1>&2; exit 1; }
+
+while getopts ":w:c:" opt; do
+    case "$opt" in
+        w)
+            wallet_hash=${OPTARG}
+            ;;
+        c)
+            currency=${OPTARG}
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ -z "${wallet_hash}" ] || [ -z "${currency}" ]; then
+    usage
+fi
+
+## Fetching wallet details
+balance="$(wget "http://dogechain.info/chain/Dogecoin/q/addressbalance/$wallet_hash" -O - 2>/dev/null)"
+formed_balance=$(printf "%.2f" $(echo $balance/1000 | bc -l))
+integer_balance=$(echo $balance\1 | bc)
+
+## Fetching conversion rate
+usdvalue="$( echo $(wget "https://www.dogeapi.com/wow/?a=get_current_price&convert_to=USD&amount_doge=$integer_balance" -O - 2>/dev/null) | grep -Po '[0-9]+\.[0-9]+')"
+formed_usd=$(printf "%.2f" $usdvalue)
+
+## Make conversion
+converted=$(echo "$(wget "https://www.google.com/finance/converter?a=$formed_usd&from=USD&to=$currency" -O - 2>/dev/null)" | grep -o "<span class=bld>.*</span>" | grep -Po '[0-9]+\.[0-9]+')
+formed_converted=$(printf "%.2f" $converted)
+
+## Generate output
+echo "$formed_balance kXDG|$converted $currency"
