@@ -18,9 +18,13 @@ while getopts ":w:c:" opt; do
 done
 shift $((OPTIND-1))
 
+## Check parameters
 if [ -z "${wallet_hash}" ] || [ -z "${currency}" ]; then
     usage
 fi
+
+## Check Internet connection
+ping -q -w 1 -c 1 google-public-dns-a.google.com > /dev/null || { echo "Doge | connection error"; exit 0; }
 
 ## Fetching wallet details
 balance="$(wget "http://dogechain.info/chain/Dogecoin/q/addressbalance/$wallet_hash" -O - 2>/dev/null)"
@@ -36,4 +40,4 @@ converted=$(echo "$(wget "https://www.google.com/finance/converter?a=$formed_usd
 formed_converted=$(printf "%.2f" $converted)
 
 ## Generate output
-echo "$formed_balance kXDG|$converted $currency"
+echo "$formed_balance kXDG | $formed_converted $currency"
