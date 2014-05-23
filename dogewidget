@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ## Read parameters
-usage() { echo "Usage: $0 [-w <DHwQ3Y6kCsf1bKiR3fK3vfMIR4gDUa2xp>] [-c <HUF>]" 1>&2; exit 1; }
+usage() { echo "Usage: $0 -w <DHwQ3Y6kCsf1bKiR3fK3vfMIR4gDUa2xp> -c <HUF>" 1>&2; exit 1; }
 
 while getopts ":w:c:" opt; do
     case "$opt" in
